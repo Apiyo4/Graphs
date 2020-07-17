@@ -23,12 +23,54 @@ world.load_graph(room_graph)
 # Print an ASCII map
 world.print_rooms()
 
+
 player = Player(world.starting_room)
 
 # Fill this out with directions to walk
 # traversal_path = ['n', 'n']
 traversal_path = []
+#return back to previous room
+reverse_path  = []
+#mark room as visited
+visited = {}
+#movement order
+m = {"n": "s", "e":"w", "s": "n", "w":"e" }
+#set the current room as visited
+visited[player.current_room.id] = player.current_room.get_exits()
+#while visited rooms are less than rooms in room_graph
+while len(visited)< len(room_graph):
+    #check to see if the room which the player is not marked as visited
+    if player.current_room.id not in visited:
+        #mark the room as visited
+        visited[player.current_room.id] =  player.current_room.get_exits()
+        #get the most previous path
+        p =  reverse_path[-1]
+        #remove the path from current visited room's direction
+        visited[player.current_room.id].remove(p)
+    #check to see if there is no other place a player can move to 
+    if len(visited[player.current_room.id]) == 0:
+        #get the most recent path
+        p = reverse_path[-1]
+        #remove the path from reverse path
+        reverse_path.pop()
+        #add the path p to the tranversal path
+        traversal_path.append(p)
+        #go to the previous path
+        player.travel(p)
+    #otherwise
+    else:
+        #get the last path in visited
+        l = visited[player.current_room.id][-1]
+        #remove the last path in visited
+        visited[player.current_room.id].pop()
+        #add path l to the traversal path
+        traversal_path.append(l)
+        #add the path that someone can move to given l in the reverse path
+        reverse_path.append(m[l])
+        #travel to l
+        player.travel(l)
 
+        
 
 
 # TRAVERSAL TEST
@@ -60,3 +102,6 @@ while True:
         break
     else:
         print("I did not understand that command.")
+
+
+
